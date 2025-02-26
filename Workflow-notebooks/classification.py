@@ -63,7 +63,7 @@ def sklearn_flatten(input_xr):
         input_xr = input_xr.to_array()
 
     # stack across pixel dimensions, handling timeseries if necessary
-    if "time" in input_xr.dims:
+    if "time" in input_xr.sizes:
         stacked = input_xr.stack(z=["x", "y", "time"])
     else:
         stacked = input_xr.stack(z=["x", "y"])
@@ -71,7 +71,7 @@ def sklearn_flatten(input_xr):
     # finding 'bands' dimensions in each pixel - these will not be
     # flattened as their context is important for sklearn
     pxdims = []
-    for dim in stacked.dims:
+    for dim in stacked.sizes:
         if dim != "z":
             pxdims.append(dim)
 
@@ -131,13 +131,13 @@ def sklearn_unflatten(output_np, input_xr):
         input_xr = input_xr.to_array()
 
     # generate the same mask we used to create the input to the sklearn model
-    if "time" in input_xr.dims:
+    if "time" in input_xr.sizes:
         stacked = input_xr.stack(z=["x", "y", "time"])
     else:
         stacked = input_xr.stack(z=["x", "y"])
 
     pxdims = []
-    for dim in stacked.dims:
+    for dim in stacked.sizes:
         if dim != "z":
             pxdims.append(dim)
 
@@ -451,8 +451,8 @@ def _get_training_data_for_shp(
     data = data.where(mask)
 
     # Check that feature_func has removed time
-    if "time" in data.dims:
-        t = data.dims["time"]
+    if "time" in data.sizes:
+        t = data.sizes["time"]
         if t > 1:
             raise ValueError(
                 "After running the feature_func, the dataset still has "
