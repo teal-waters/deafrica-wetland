@@ -1,0 +1,4 @@
+Workflow-notebooks/data
+Workflow-notebooks/results
+__pycache__
+venv
