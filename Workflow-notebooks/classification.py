@@ -293,23 +293,22 @@ def predict_xr(
 
         output_xr = output_xr.to_dataset(name="Predictions")
 
-#         if proba == True:
-#             print("   probabilities...")
-#             out_proba = model.predict_proba(input_data_flattened)
+        # if proba == True:
+        #     print("   probabilities...")
+        #     out_proba = model.predict_proba(input_data_flattened)
 
-#             # convert to %
-#             out_proba = da.max(out_proba, axis=1) * 100.0
+        #     # convert to %
+        #     out_proba = da.max(out_proba, axis=1) * 100.0
 
-#             if clean == True:
-#                 out_proba = da.where(da.isfinite(out_proba), out_proba, 0)
+        #     if clean == True:
+        #         out_proba = da.where(da.isfinite(out_proba), out_proba, 0)
 
-#             out_proba = out_proba.reshape(len(y), len(x))
+        #     out_proba = out_proba.reshape(len(y), len(x))
 
-#             out_proba = xr.DataArray(
-#                 out_proba, coords={"x": x, "y": y}, dims=["y", "x"]
-#             )
-#             output_xr["Probabilities"] = out_proba
-
+        #     out_proba = xr.DataArray(
+        #         out_proba, coords={"x": x, "y": y}, dims=["y", "x"]
+        #     )
+        #     output_xr["Probabilities"] = out_proba
 
         if proba == True:
             print("   probabilities...")
@@ -318,12 +317,19 @@ def predict_xr(
             if clean == True:
                 out_proba = da.where(da.isfinite(out_proba), out_proba, 0)
 
-            out_proba = out_proba.reshape(len(y), len(x), -1)  # Reshape to include probabilities for each class
+            out_proba = out_proba.reshape(
+                len(y), len(x), -1
+            )  # Reshape to include probabilities for each class
 
-            out_proba = xr.DataArray(out_proba, coords={"x": x, "y": y, "class": range(out_proba.shape[2])}, dims=["y", "x", "class"])
+            out_proba = xr.DataArray(
+                out_proba,
+                coords={"x": x, "y": y, "class": range(out_proba.shape[2])},
+                dims=["y", "x", "class"],
+            )
 
-            output_xr["Probabilities"] = out_proba  # Store probabilities in output dataset
-
+            output_xr["Probabilities"] = (
+                out_proba  # Store probabilities in output dataset
+            )
 
         if return_input == True:
             print("   input features...")
@@ -435,7 +441,7 @@ def _get_training_data_for_shp(
     # mulitprocessing for parallization
     if "dask_chunks" in dc_query.keys():
         dc_query.pop("dask_chunks", None)
-    
+
     # set up query based on polygon
     geom = geometry.Geometry(geom=gdf.iloc[index].geometry, crs=gdf.crs)
     q = {"geopolygon": geom}
@@ -568,7 +574,7 @@ def collect_training_data(
     max_retries=3,
 ):
     """
-    This function provides methods for gathering training data from the ODC over 
+    This function provides methods for gathering training data from the ODC over
     geometries stored within a geopandas geodataframe. The function will return a
     'model_input' array containing stacked training data arrays with all NaNs & Infs removed.
     In the instance where ncpus > 1, a parallel version of the function will be run
@@ -635,7 +641,7 @@ def collect_training_data(
     Two objects are returned:
     `columns_names`: a list of variable (feature) names
     `model_input`: a numpy.array containing the data values for each feature extracted
-    
+
     """
 
     # check the dtype of the class field
@@ -646,14 +652,14 @@ def collect_training_data(
 
     # set up some print statements
     if feature_func is None:
-         raise ValueError(
+        raise ValueError(
             "Please supply a feature layer function through the "
-            +"parameter 'feature_func'"
+            + "parameter 'feature_func'"
         )
 
     if zonal_stats is not None:
         print("Taking zonal statistic: " + zonal_stats)
-    
+
     # add unique id to gdf to help with indexing failed rows
     # during multiprocessing
     # if zonal_stats is not None:
